@@ -1,0 +1,16 @@
+NOTE: Only the first ten elements for popularity_list() and most_similar(u) are reproduced below
+Popularity hash is formatted as [movie, popularity]
+Similarity hash is formatted as [otherUserId, similarity to user 'u' (percentage)]
+
+
+vagrant@precise64:/vagrant/movies-1$ irb
+irb(main):001:0> require "./movie_data.rb"
+=> true
+irb(main):002:0> md = MovieData.new()
+=> #<MovieData:0x007f6e257146d0 @hash_by_user={}, @hash_by_movie={}>
+irb(main):003:0> md.load_data()
+=> nil
+irb(main):004:0> md.popularity_list()
+=> [[50, 583], [258, 509], [100, 508], [181, 507], [294, 485], [286, 481], [288, 478], [1, 452], [300, 431], [121, 429], ...
+irb(main):005:0> md.most_similar(1)
+=>[[737, 72.72727272727273], [700, 66.66666666666666], [352, 66.66666666666666], [247, 65.38461538461539], [584, 62.5], [215, 62.365591397849464], [103, 62.06896551724138], [226, 62.0], [55, 61.904761904761905], [53, 60.71428571428571]
