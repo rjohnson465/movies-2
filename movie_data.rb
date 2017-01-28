@@ -187,6 +187,7 @@ class MovieData
   def most_similar(u)
     similarity_hash = Hash.new()
     beginning_time = Time.now
+=begin
     # APPROACH TWO get similarity scores only for u and top 100 users who have seen many movies that u has seen
     # make hash sim_users s.t. key = user s, value = # of movies user s has seen that user u has seen
     movies_u = movies(u)
@@ -214,7 +215,7 @@ class MovieData
         end
       end
     end #end APPROACH TWO
-=begin
+=end
     # APPROACH ONE get similarity scores for u and every other member of the dataset (very slow, ~1200 ms per prediction)
     bt2 = Time.now
     # if we reduce number of similarity calculations this would be much faster
@@ -227,7 +228,6 @@ class MovieData
         end
       end
     end # end APPROACH ONE
-=end
     end_time = Time.now
     puts "Most similar function took #{(end_time - beginning_time)*1000} milliseconds to run"
 
