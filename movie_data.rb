@@ -35,9 +35,9 @@ class MovieData
       rating = line_arr[2].to_i
       subhash = Hash.new()
       if (keys == 'users')
-        subhash = {'movie_id'=> movie_id, 'rating'=> rating, 'timestamp'=> timestamp}
+        subhash = {'movie_id'=> movie_id, 'rating'=> rating}
       else
-        subhash = {'user_id'=> user_id, 'rating'=> rating, 'timestamp'=> timestamp}
+        subhash = {'user_id'=> user_id, 'rating'=> rating}
       end
       key = (keys == "users") ? user_id : movie_id
       # store data s.t. hash keys are 'keys' (either users or movies)
@@ -86,28 +86,27 @@ class MovieData
   # k is optional -- if ommitted, all tests will be run
   def run_test(k=nil)
     arr = Array.new() # later passed to MovieTest constructor
+
+    def run_predict(line, arr)
+      line_arr = line.split(' ')
+      user_id = line_arr[0].to_i
+      movie_id = line_arr[1].to_i
+      rating = line_arr[2].to_i
+      predicted_rating = predict(user_id, movie_id)
+      arr.push([user_id, movie_id, rating, predicted_rating])
+    end
+
     if (k != nil)
       lines = File.foreach(test_data).first(k)
       lines.each do |line|
-        line_arr = line.split(' ')
-        user_id = line_arr[0].to_i
-        movie_id = line_arr[1].to_i
-        rating = line_arr[2].to_i
-        predicted_rating = predict(user_id, movie_id)
-        arr.push([user_id, movie_id, rating, predicted_rating])
+        run_predict(line, arr)
       end
     else
       # run test on all ratings in test set
       File.foreach(test_data) do |line|
-        line_arr = line.split(' ')
-        user_id = line_arr[0].to_i
-        movie_id = line_arr[1].to_i
-        rating = line_arr[2].to_i
-        predicted_rating = predict(user_id, movie_id)
-        arr.push([user_id, movie_id, rating, predicted_rating])
+        run_predict(line, arr)
       end
     end
-
     return MovieTest.new(arr)
   end
 
@@ -119,7 +118,6 @@ class MovieData
         return hash["rating"]
       end
     end
-    # Find list of similar users
     similarity_hash = most_similar(u)
     # Find all users who have seen m
     hashes_arr = train_set_movies[m]
@@ -189,9 +187,7 @@ class MovieData
   def most_similar(u)
     similarity_hash = Hash.new()
     beginning_time = Time.now
-=begin
     # APPROACH TWO get similarity scores only for u and top 100 users who have seen many movies that u has seen
-    bt2 = Time.now
     # make hash sim_users s.t. key = user s, value = # of movies user s has seen that user u has seen
     movies_u = movies(u)
     sim_users = Hash.new()
@@ -217,9 +213,8 @@ class MovieData
           similarity_hash[otherUser] = similarity
         end
       end
-    end
-=end #end METHOD TWO
-
+    end #end APPROACH TWO
+=begin
     # APPROACH ONE get similarity scores for u and every other member of the dataset (very slow, ~1200 ms per prediction)
     bt2 = Time.now
     # if we reduce number of similarity calculations this would be much faster
@@ -231,13 +226,12 @@ class MovieData
           similarity_hash[otherUser] = similarity
         end
       end
-    end # end METHOD ONE
-    et2 = Time.now
-    puts "Hashing all similarities for user #{u} took #{(et2 - bt2)*1000} ms to run"
+    end # end APPROACH ONE
+=end
     end_time = Time.now
     puts "Most similar function took #{(end_time - beginning_time)*1000} milliseconds to run"
 
-    return similarity_hash.sort_by {|k, v| v}.reverse.to_h
+    return similarity_hash.sort_by {|_k, v| v}.reverse.to_h
   end
 end # end MovieData class
 
