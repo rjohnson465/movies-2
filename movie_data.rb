@@ -33,7 +33,6 @@ class MovieData
       user_id = line_arr[0].to_i
       movie_id = line_arr[1].to_i
       rating = line_arr[2].to_i
-      timestamp = line_arr[3].to_i
       subhash = Hash.new()
       if (keys == 'users')
         subhash = {'movie_id'=> movie_id, 'rating'=> rating, 'timestamp'=> timestamp}
@@ -94,7 +93,6 @@ class MovieData
         user_id = line_arr[0].to_i
         movie_id = line_arr[1].to_i
         rating = line_arr[2].to_i
-        timestamp = line_arr[3].to_i
         predicted_rating = predict(user_id, movie_id)
         arr.push([user_id, movie_id, rating, predicted_rating])
       end
@@ -105,7 +103,6 @@ class MovieData
         user_id = line_arr[0].to_i
         movie_id = line_arr[1].to_i
         rating = line_arr[2].to_i
-        timestamp = line_arr[3].to_i
         predicted_rating = predict(user_id, movie_id)
         arr.push([user_id, movie_id, rating, predicted_rating])
       end
@@ -122,7 +119,6 @@ class MovieData
         return hash["rating"]
       end
     end
-
     # Find list of similar users
     similarity_hash = most_similar(u)
     # Find all users who have seen m
@@ -159,7 +155,6 @@ class MovieData
   # return a percentage which indicates the similarity in movie preference between user1/user2
   def similarity(user1, user2)
     similarity = 0
-    bt = Time.now
     # iterate over each movie of user with smaller data set
     # if user with larger data set has movie, check if user1's rating == user2's rating (+ or - 1)
     smaller_user = (train_set_users[user1].length < train_set_users[user2].length) ? user1 : user2
@@ -186,19 +181,16 @@ class MovieData
     # get total number of movies for the user with the smaller data set
     smaller_user_movies_watched = train_set_users[smaller_user].length.to_f
     # divide raw similarity score over total number of movies for the user with the smaller data set and * by 100 to get a percentage
-    et = Time.now
-    #puts "Similarity calc for user #{user1} and user #{user2} took #{(et - bt)*1000} ms to run"
     return (similarity / smaller_user_movies_watched) * 100
   end
 
   # return hash (not a list, for the purpose of preserving similarity percentages) of users whose tastes are most similar to tastes of user u
-  # TODO THIS IS SLOW AF -- why? We are checking the similarity of u and EVERY SINGLE OTHER user -- that's 943 (for dataset u1) runs of similarity()
+  # two approaches here (1 commented out) APPROACH ONE IS VERY VERY SLOW -- why? We are checking the similarity of u and EVERY SINGLE OTHER user -- that's 943 (for dataset u1) runs of similarity()
   def most_similar(u)
     similarity_hash = Hash.new()
     beginning_time = Time.now
-
 =begin
-    # METHOD TWO get similarity scores only for u and top 100 users who have seen many movies that u has seen
+    # APPROACH TWO get similarity scores only for u and top 100 users who have seen many movies that u has seen
     bt2 = Time.now
     # make hash sim_users s.t. key = user s, value = # of movies user s has seen that user u has seen
     movies_u = movies(u)
@@ -228,10 +220,10 @@ class MovieData
     end
 =end #end METHOD TWO
 
-    # METHOD ONE get similarity scores for u and every other member of the dataset (very slow, ~1200 ms per prediction)
+    # APPROACH ONE get similarity scores for u and every other member of the dataset (very slow, ~1200 ms per prediction)
     bt2 = Time.now
-    # TODO reduce number of similarity calculations (ideally to 100 calculations / prediction)
-    train_set_users.each do |key, array|
+    # if we reduce number of similarity calculations this would be much faster
+    train_set_users.each do |key, _array|
       otherUser = key
       if otherUser != u
         similarity = similarity(u, otherUser)
@@ -247,7 +239,6 @@ class MovieData
 
     return similarity_hash.sort_by {|k, v| v}.reverse.to_h
   end
-
 end # end MovieData class
 
 
