@@ -258,6 +258,22 @@ class MovieTest
 
   # returns the standard deviation of the error
   def stddev()
+    differentials = Array.new()
+    data.each do |arr|
+      predicted = arr[3].to_f
+      actual = arr[2].to_f
+      differential = (predicted - actual).abs
+      differentials.push(differential)
+    end
+
+    mean = self.mean
+    sum = 0
+    differentials.each do |x|
+      element = (x - mean)**2
+      sum += element
+    end
+    sample_variance = sum / differentials.length
+    return Math.sqrt(sample_variance)
 
   end
 
@@ -281,7 +297,7 @@ class MovieTest
 
 end
 
-sample_size = 100
+sample_size = 1
 md = MovieData.new(:u1)
 mt = md.run_test(sample_size)
 
