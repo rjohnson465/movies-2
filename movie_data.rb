@@ -143,7 +143,7 @@ class MovieData
     end
     # Divide total adjusted ratings over total weight for prediction
     if (total_weight != 0)
-    prediction = adjusted_ratings / total_weight
+      prediction = adjusted_ratings / total_weight
     else
       prediction = 4 # if we're about to divde by 0, just guess 4
     end
@@ -217,7 +217,6 @@ class MovieData
     end #end APPROACH TWO
 =end
     # APPROACH ONE get similarity scores for u and every other member of the dataset (very slow, ~1200 ms per prediction)
-    bt2 = Time.now
     # if we reduce number of similarity calculations this would be much faster
     train_set_users.each do |key, _array|
       otherUser = key
@@ -297,7 +296,7 @@ class MovieTest
 
 end
 
-sample_size = 1
+sample_size = 5
 md = MovieData.new(:u1)
 mt = md.run_test(sample_size)
 
